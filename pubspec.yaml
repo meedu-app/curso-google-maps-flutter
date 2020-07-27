@@ -36,6 +36,8 @@ dependencies:
   bloc: ^4.0.0
   equatable: ^1.2.0
   http: ^0.12.1
+  dio: ^3.0.9
+  flutter_html: ^1.0.0
   
 
 dev_dependencies:

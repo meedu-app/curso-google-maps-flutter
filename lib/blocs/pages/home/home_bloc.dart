@@ -3,6 +3,7 @@ import 'dart:io' show Platform;
 import 'package:bloc/bloc.dart';
 import 'package:google_maps/blocs/pages/home/bloc.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:google_maps/models/place.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location_permissions/location_permissions.dart';
 import 'home_events.dart';
@@ -66,6 +67,11 @@ class HomeBloc extends Bloc<HomeEvents, HomeState> {
           CameraUpdate.newLatLng(this.state.myLocation);
       await (await _mapController).animateCamera(cameraUpdate);
     }
+  }
+
+  goToPlace(Place place) async {
+    final CameraUpdate cameraUpdate = CameraUpdate.newLatLng(place.position);
+    await (await _mapController).animateCamera(cameraUpdate);
   }
 
   void setMapController(GoogleMapController controller) {
