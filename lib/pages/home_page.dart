@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:google_maps/widgets/custom_app_bar.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../utils/map_style.dart';
 import '../blocs/pages/home/bloc.dart';
@@ -34,6 +35,7 @@ class _HomePageState extends State<HomePage> {
     return BlocProvider.value(
       value: this._bloc,
       child: Scaffold(
+        appBar: CustomAppBar(),
         body: SafeArea(
           child: Container(
             width: double.infinity,
@@ -68,14 +70,10 @@ class _HomePageState extends State<HomePage> {
                       initialCameraPosition: initialPosition,
                       zoomControlsEnabled: false,
                       compassEnabled: false,
-                      myLocationEnabled: false,
+                      myLocationEnabled: true,
                       markers: state.markers.values.toSet(),
                       polylines: state.polylines.values.toSet(),
                       polygons: state.polygons.values.toSet(),
-                      onTap: (LatLng position) {
-                        print("🎃🎃🎃  $position");
-                        this._bloc.add(OnMapTap(position));
-                      },
                       myLocationButtonEnabled: false,
                       onMapCreated: (GoogleMapController controller) {
                         this._bloc.setMapController(controller);
