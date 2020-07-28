@@ -1,9 +1,12 @@
 import 'dart:async';
 import 'dart:io' show Platform;
+import 'dart:math';
+import 'dart:typed_data';
 import 'package:bloc/bloc.dart';
 import 'package:google_maps/blocs/pages/home/bloc.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps/models/place.dart';
+import 'package:google_maps/utils/extras.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location_permissions/location_permissions.dart';
 import 'home_events.dart';
@@ -70,6 +73,7 @@ class HomeBloc extends Bloc<HomeEvents, HomeState> {
   }
 
   goToPlace(Place place) async {
+    add(GoToPlace(place));
     final CameraUpdate cameraUpdate = CameraUpdate.newLatLng(place.position);
     await (await _mapController).animateCamera(cameraUpdate);
   }
@@ -90,6 +94,30 @@ class HomeBloc extends Bloc<HomeEvents, HomeState> {
       yield* this._mapOnMyLocationUpdate(event);
     } else if (event is OnGpsEnabled) {
       yield this.state.copyWith(gpsEnabled: event.enabled);
+    } else if (event is GoToPlace) {
+      final history = Map<String, Place>.from(this.state.history);
+      final MarkerId markerId = MarkerId('place');
+
+      final Uint8List bytes = await placeToMarker(event.place);
+
+      final Marker marker = Marker(
+        markerId: markerId,
+        position: event.place.position,
+        icon: BitmapDescriptor.fromBytes(bytes),
+      );
+
+      final markers = Map<MarkerId, Marker>.from(this.state.markers);
+      markers[markerId] = marker;
+
+      if (history[event.place.id] == null) {
+        history[event.place.id] = event.place;
+        yield this.state.copyWith(
+              history: history,
+              markers: markers,
+            );
+      } else {
+        yield this.state.copyWith(markers: markers);
+      }
     }
   }
 

@@ -2,6 +2,8 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'dart:math' as math;
 import 'package:flutter/services.dart';
+import 'package:google_maps/models/place.dart';
+import 'package:google_maps/widgets/my_custom_marker.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 
@@ -50,4 +52,22 @@ double getCoordsRotation(LatLng currentPosition, LatLng lastPosition) {
   final angle = math.atan2(dy, dx);
 
   return 90 - angle * 180 / math.pi;
+}
+
+Future<Uint8List> placeToMarker(Place place) async {
+  ui.PictureRecorder recorder = ui.PictureRecorder();
+  ui.Canvas canvas = ui.Canvas(recorder);
+  final ui.Size size = ui.Size(300, 90);
+  MyCustomMarker customMarker = MyCustomMarker(place);
+  customMarker.paint(canvas, size);
+  ui.Picture picture = recorder.endRecording();
+  final ui.Image image = await picture.toImage(
+    size.width.toInt(),
+    size.height.toInt(),
+  );
+
+  final ByteData byteData = await image.toByteData(
+    format: ui.ImageByteFormat.png,
+  );
+  return byteData.buffer.asUint8List();
 }
