@@ -75,7 +75,7 @@ class HomeBloc extends Bloc<HomeEvents, HomeState> {
   goToPlace(Place place) async {
     add(GoToPlace(place));
     final CameraUpdate cameraUpdate = CameraUpdate.newLatLng(place.position);
-    await (await _mapController).animateCamera(cameraUpdate);
+    await (await _mapController).moveCamera(cameraUpdate);
   }
 
   void setMapController(GoogleMapController controller) {

@@ -17,7 +17,7 @@ class Place {
     return Place(
       id: json['id'],
       title: json['title'],
-      vicinity: json['vicinity'],
+      vicinity: json['vicinity'] != null ? json['vicinity'] : '',
       position: LatLng(coords[0], coords[1]),
     );
   }
