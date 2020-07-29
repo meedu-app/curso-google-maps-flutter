@@ -1,10 +1,8 @@
-import 'dart:async';
-import 'dart:convert';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:google_maps/widgets/centered_marker.dart';
 import 'package:google_maps/widgets/custom_app_bar.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import '../utils/map_style.dart';
 import '../blocs/pages/home/bloc.dart';
 
 class HomePage extends StatefulWidget {
@@ -65,6 +63,7 @@ class _HomePageState extends State<HomePage> {
                 );
 
                 return Stack(
+                  alignment: Alignment.center,
                   children: <Widget>[
                     GoogleMap(
                       initialCameraPosition: initialPosition,
@@ -90,7 +89,8 @@ class _HomePageState extends State<HomePage> {
                         ),
                         backgroundColor: Colors.white,
                       ),
-                    )
+                    ),
+                    CenteredMarked()
                   ],
                 );
               },
