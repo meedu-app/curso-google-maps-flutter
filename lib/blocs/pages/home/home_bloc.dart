@@ -68,12 +68,13 @@ class HomeBloc extends Bloc<HomeEvents, HomeState> {
     if (this.state.myLocation != null) {
       final CameraUpdate cameraUpdate =
           CameraUpdate.newLatLng(this.state.myLocation);
-      await (await _mapController).animateCamera(cameraUpdate);
+      await (await _mapController).moveCamera(cameraUpdate);
     }
   }
 
   goToPlace(Place place) async {
-    add(GoToPlace(place));
+    add(GoToPlace(place)); //
+    await Future.delayed(Duration(milliseconds: 300));
     final CameraUpdate cameraUpdate = CameraUpdate.newLatLng(place.position);
     await (await _mapController).animateCamera(cameraUpdate);
   }
