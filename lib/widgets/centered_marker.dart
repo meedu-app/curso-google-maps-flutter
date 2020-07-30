@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 
 class CenteredMarked extends StatelessWidget {
-  const CenteredMarked({Key key}) : super(key: key);
+  final String label;
+  const CenteredMarked({Key key, this.label = ''}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -19,8 +20,9 @@ class CenteredMarked extends StatelessWidget {
               alignment: Alignment.center,
               children: <Widget>[
                 AutoSizeText(
-                  "Curso google maps flutter",
+                  this.label,
                   maxLines: 2,
+                  textAlign: TextAlign.center,
                   overflow: TextOverflow.ellipsis,
                   minFontSize: 10,
                 ),

@@ -1,6 +1,8 @@
 import 'package:google_maps/models/place.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart' show LatLng;
 
+import '../../../models/place.dart';
+
 abstract class HomeEvents {}
 
 class OnMyLocationUpdate extends HomeEvents {
@@ -22,4 +24,10 @@ class OnGpsEnabled extends HomeEvents {
   final bool enabled;
 
   OnGpsEnabled(this.enabled);
+}
+
+class ConfirmPoint extends HomeEvents {
+  final Place place;
+  final bool isArrival;
+  ConfirmPoint(this.place, this.isArrival);
 }

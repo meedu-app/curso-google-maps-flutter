@@ -1,8 +1,11 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps/widgets/centered_marker.dart';
 import 'package:google_maps/widgets/custom_app_bar.dart';
+import 'package:google_maps/widgets/my_location_button.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import '../blocs/pages/home/bloc.dart';
 import '../blocs/pages/home/bloc.dart';
 
 class HomePage extends StatefulWidget {
@@ -62,35 +65,51 @@ class _HomePageState extends State<HomePage> {
                   zoom: 15,
                 );
 
-                return Stack(
-                  alignment: Alignment.center,
+                return Column(
                   children: <Widget>[
-                    GoogleMap(
-                      initialCameraPosition: initialPosition,
-                      zoomControlsEnabled: false,
-                      compassEnabled: false,
-                      myLocationEnabled: true,
-                      markers: state.markers.values.toSet(),
-                      polylines: state.polylines.values.toSet(),
-                      polygons: state.polygons.values.toSet(),
-                      myLocationButtonEnabled: false,
-                      onMapCreated: (GoogleMapController controller) {
-                        this._bloc.setMapController(controller);
-                      },
-                    ),
-                    Positioned(
-                      bottom: 15,
-                      right: 15,
-                      child: FloatingActionButton(
-                        onPressed: () => _bloc.goToMyPosition(),
-                        child: Icon(
-                          Icons.gps_fixed,
-                          color: Colors.black,
-                        ),
-                        backgroundColor: Colors.white,
+                    Expanded(
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: <Widget>[
+                          GoogleMap(
+                            initialCameraPosition: initialPosition,
+                            zoomControlsEnabled: false,
+                            compassEnabled: false,
+                            myLocationEnabled: true,
+                            markers: state.markers.values.toSet(),
+                            polylines: state.polylines.values.toSet(),
+                            polygons: state.polygons.values.toSet(),
+                            myLocationButtonEnabled: false,
+                            onMapCreated: (GoogleMapController controller) {
+                              this._bloc.setMapController(controller);
+                            },
+                          ),
+                          MyLocationButton(),
+                          CenteredMarked(
+                            label: state.arrival != null
+                                ? state.arrival.title
+                                : '',
+                          )
+                        ],
                       ),
                     ),
-                    CenteredMarked()
+                    if (state.arrival != null)
+                      Container(
+                        padding: EdgeInsets.symmetric(vertical: 15),
+                        child: Column(
+                          children: <Widget>[
+                            CupertinoButton(
+                              color: Colors.blue,
+                              child: Text("CONFIRM ARRIVAL"),
+                              onPressed: () {
+                                _bloc.add(
+                                  ConfirmPoint(state.arrival, true),
+                                );
+                              },
+                            )
+                          ],
+                        ),
+                      ),
                   ],
                 );
               },
