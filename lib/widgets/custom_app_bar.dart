@@ -94,7 +94,7 @@ class SearchPlacesDelegate extends SearchDelegate<Place> {
 
     if (this.query.trim().length >= 3) {
       return FutureBuilder<List<Place>>(
-        future: _api.searchPlace(this.query, this.at),
+        future: _api.search(this.query, this.at),
         builder: (_, snapshot) {
           if (snapshot.hasData) {
             return ListView.builder(

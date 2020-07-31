@@ -85,31 +85,33 @@ class _HomePageState extends State<HomePage> {
                             },
                           ),
                           MyLocationButton(),
-                          CenteredMarked(
-                            label: state.arrival != null
-                                ? state.arrival.title
-                                : '',
-                          )
+                          // CenteredMarked(
+                          //   label: state.arrival != null
+                          //       ? state.arrival.title
+                          //       : '',
+                          // )
                         ],
                       ),
                     ),
-                    if (state.arrival != null)
-                      Container(
-                        padding: EdgeInsets.symmetric(vertical: 15),
-                        child: Column(
-                          children: <Widget>[
-                            CupertinoButton(
-                              color: Colors.blue,
-                              child: Text("CONFIRM ARRIVAL"),
-                              onPressed: () {
-                                _bloc.add(
-                                  ConfirmPoint(state.arrival, true),
-                                );
-                              },
-                            )
-                          ],
+                    Container(
+                      padding: EdgeInsets.all(15),
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: CupertinoButton(
+                          color: Color(0xffd2d2d2),
+                          child: Text(
+                            "A donde vas?",
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          onPressed: () {
+                            _bloc.whereYouGo(context);
+                          },
                         ),
                       ),
+                    )
                   ],
                 );
               },

@@ -7,13 +7,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps/blocs/pages/home/bloc.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps/models/place.dart';
+import 'package:google_maps/pages/origin_and_destination_page.dart';
 import 'package:google_maps/utils/extras.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location_permissions/location_permissions.dart';
 import 'bloc.dart';
-import 'bloc.dart';
 import 'home_events.dart';
-import 'home_state.dart';
 import 'home_state.dart';
 
 class HomeBloc extends Bloc<HomeEvents, HomeState> {
@@ -79,6 +78,16 @@ class HomeBloc extends Bloc<HomeEvents, HomeState> {
     }
   }
 
+  whereYouGo(BuildContext context) {
+    final route = MaterialPageRoute(
+      builder: (_) => OriginAndDestinationPage(
+        origin: this.state.origin,
+      ),
+      fullscreenDialog: true,
+    );
+    Navigator.push(context, route);
+  }
+
   goToPlace(Place place) async {
     await Future.delayed(Duration(milliseconds: 300));
     add(GoToPlace(place));
@@ -123,7 +132,20 @@ class HomeBloc extends Bloc<HomeEvents, HomeState> {
   }
 
   Stream<HomeState> _mapOnMyLocationUpdate(OnMyLocationUpdate event) async* {
-    yield this.state.copyWith(loading: false, myLocation: event.location);
+    if (this.state.myLocation == null) {
+      Place origin = Place(
+        id: 'origin',
+        title: "Mi ubicación",
+        position: event.location,
+      );
+      yield this.state.copyWith(
+            loading: false,
+            myLocation: event.location,
+            origin: origin,
+          );
+    } else {
+      yield this.state.copyWith(myLocation: event.location);
+    }
   }
 
   Stream<HomeState> _mapGoToPlace(GoToPlace event) async* {
@@ -145,12 +167,12 @@ class HomeBloc extends Bloc<HomeEvents, HomeState> {
       history[event.place.id] = event.place;
       yield this.state.copyWith(
             history: history,
-            arrival: event.place,
+            destination: event.place,
             // markers: markers,
           );
     } else {
       //yield this.state.copyWith(markers: markers);
-      yield this.state.copyWith(arrival: event.place);
+      yield this.state.copyWith(destination: event.place);
     }
   }
 }

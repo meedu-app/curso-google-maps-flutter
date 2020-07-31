@@ -4,7 +4,6 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:io' show Platform;
 
 import '../../../models/place.dart';
-import '../../../models/place.dart';
 
 class HomeState extends Equatable {
   final LatLng myLocation;
@@ -13,17 +12,19 @@ class HomeState extends Equatable {
   final Map<PolylineId, Polyline> polylines;
   final Map<PolygonId, Polygon> polygons;
   final Map<String, Place> history;
-  final Place arrival;
+  final Place origin, destination;
 
-  HomeState(
-      {this.myLocation,
-      this.loading,
-      this.markers,
-      this.gpsEnabled,
-      this.polylines,
-      this.polygons,
-      this.history,
-      this.arrival});
+  HomeState({
+    this.myLocation,
+    this.loading,
+    this.markers,
+    this.gpsEnabled,
+    this.polylines,
+    this.polygons,
+    this.history,
+    this.destination,
+    this.origin,
+  });
 
   static HomeState get initialState => new HomeState(
         myLocation: null,
@@ -43,7 +44,8 @@ class HomeState extends Equatable {
       Map<PolylineId, Polyline> polylines,
       Map<PolygonId, Polygon> polygons,
       Map<String, Place> history,
-      Place arrival}) {
+      Place origin,
+      Place destination}) {
     return HomeState(
       myLocation: myLocation ?? this.myLocation,
       loading: loading ?? this.loading,
@@ -52,7 +54,8 @@ class HomeState extends Equatable {
       polylines: polylines ?? this.polylines,
       polygons: polygons ?? this.polygons,
       history: history ?? this.history,
-      arrival: arrival ?? this.arrival,
+      origin: origin ?? this.origin,
+      destination: destination ?? this.destination,
     );
   }
 
@@ -64,6 +67,7 @@ class HomeState extends Equatable {
         gpsEnabled,
         polylines,
         history,
-        arrival,
+        origin,
+        destination,
       ];
 }
