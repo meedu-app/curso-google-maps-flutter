@@ -127,6 +127,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.2.0"
+  flexible_polyline:
+    dependency: "direct main"
+    description:
+      name: flexible_polyline
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.0-alpha"
   flutter:
     dependency: "direct main"
     description: flutter
@@ -262,12 +269,12 @@ packages:
     source: hosted
     version: "0.3.0"
   path:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
       name: path
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.6.4"
+    version: "1.7.0"
   path_drawing:
     dependency: transitive
     description:
@@ -392,6 +399,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.2.15"
+  tuple:
+    dependency: transitive
+    description:
+      name: tuple
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.3"
   typed_data:
     dependency: transitive
     description:

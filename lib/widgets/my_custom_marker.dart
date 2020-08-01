@@ -3,13 +3,14 @@ import 'package:google_maps/models/place.dart';
 
 class MyCustomMarker extends CustomPainter {
   final Place place;
+  final Color color;
 
-  MyCustomMarker(this.place);
+  MyCustomMarker(this.place, this.color);
 
   @override
   void paint(Canvas canvas, Size size) {
     final Paint paint = Paint();
-    paint.color = Colors.green;
+    paint.color = this.color;
 
     final height = size.height - 15;
 

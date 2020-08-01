@@ -39,7 +39,11 @@ dependencies:
   dio: ^3.0.9
   flutter_html: ^1.0.0
   auto_size_text: ^2.1.0
-  
+  flexible_polyline: 1.0.0-alpha
+
+
+dependency_overrides:
+  path: 1.7.0
 
 dev_dependencies:
   flutter_test:

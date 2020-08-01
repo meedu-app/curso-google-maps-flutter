@@ -28,6 +28,6 @@ class OnGpsEnabled extends HomeEvents {
 
 class ConfirmPoint extends HomeEvents {
   final Place place;
-  final bool isArrival;
-  ConfirmPoint(this.place, this.isArrival);
+  final bool isOrigin;
+  ConfirmPoint(this.place, this.isOrigin);
 }

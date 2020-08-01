@@ -16,38 +16,11 @@ class CustomAppBar extends StatelessWidget with PreferredSizeWidget {
     return BlocBuilder<HomeBloc, HomeState>(
       builder: (_, state) {
         return Container(
+          padding: EdgeInsets.all(15),
           child: SafeArea(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
-              children: <Widget>[
-                FlatButton(
-                  child: Row(
-                    children: <Widget>[
-                      Text(
-                        "Search place ... ",
-                        style: TextStyle(
-                          color: Colors.black26,
-                        ),
-                      ),
-                      Icon(Icons.search),
-                    ],
-                  ),
-                  onPressed: () async {
-                    final List<Place> history = state.history.values.toList();
-                    SearchPlacesDelegate delegate = SearchPlacesDelegate(
-                      state.myLocation,
-                      history,
-                    );
-                    final Place place = await showSearch<Place>(
-                      context: context,
-                      delegate: delegate,
-                    );
-                    if (place != null) {
-                      bloc.goToPlace(place);
-                    }
-                  },
-                )
-              ],
+              children: <Widget>[Text("MEEDU.APP")],
             ),
           ),
         );

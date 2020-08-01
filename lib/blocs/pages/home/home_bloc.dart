@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io' show Platform;
 import 'dart:typed_data';
+import 'dart:math' as math;
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -78,21 +79,25 @@ class HomeBloc extends Bloc<HomeEvents, HomeState> {
     }
   }
 
-  whereYouGo(BuildContext context) {
-    final route = MaterialPageRoute(
+  whereYouGo(BuildContext context) async {
+    final List<Place> history = this.state.history.values.toList();
+    final route = MaterialPageRoute<Place>(
       builder: (_) => OriginAndDestinationPage(
         origin: this.state.origin,
+        destination: this.state.destination,
+        history: history,
+        onOriginChanged: (Place origin) {
+          add(
+            ConfirmPoint(origin, true),
+          );
+        },
       ),
       fullscreenDialog: true,
     );
-    Navigator.push(context, route);
-  }
-
-  goToPlace(Place place) async {
-    await Future.delayed(Duration(milliseconds: 300));
-    add(GoToPlace(place));
-    final CameraUpdate cameraUpdate = CameraUpdate.newLatLng(place.position);
-    await (await _mapController).animateCamera(cameraUpdate);
+    final Place itemSelected = await Navigator.push(context, route);
+    if (itemSelected != null) {
+      add(ConfirmPoint(itemSelected, false));
+    }
   }
 
   void setMapController(GoogleMapController controller) {
@@ -111,24 +116,60 @@ class HomeBloc extends Bloc<HomeEvents, HomeState> {
       yield* this._mapOnMyLocationUpdate(event);
     } else if (event is OnGpsEnabled) {
       yield this.state.copyWith(gpsEnabled: event.enabled);
-    } else if (event is GoToPlace) {
-      yield* this._mapGoToPlace(event);
     } else if (event is ConfirmPoint) {
       yield* this._mapConfirmPoint(event);
     }
   }
 
   Stream<HomeState> _mapConfirmPoint(ConfirmPoint event) async* {
-    final MarkerId markerId = MarkerId('arrival');
-    final Uint8List bytes = await placeToMarker(event.place);
-    final Marker marker = Marker(
-      markerId: markerId,
-      position: event.place.position,
-      icon: BitmapDescriptor.fromBytes(bytes),
+    final Uint8List bytes = await placeToMarker(
+      event.place,
+      event.isOrigin ? Colors.green : Colors.redAccent,
     );
+    final Marker marker = createMarker(
+      id: event.isOrigin ? 'origin' : 'destination',
+      position: event.place.position,
+      bytes: bytes,
+    );
+
+    final Place origin = event.isOrigin ? event.place : this.state.origin;
+    final Place destination =
+        !event.isOrigin ? event.place : this.state.destination;
+
     final markers = Map<MarkerId, Marker>.from(this.state.markers);
-    markers[markerId] = marker;
-    yield this.state.copyWith(markers: markers);
+    markers[marker.markerId] = marker;
+
+    final history = Map<String, Place>.from(this.state.history);
+    history[event.place.id] = event.place;
+
+    CameraUpdate cameraUpdate;
+
+    Map<PolylineId, Polyline> polylines;
+
+    if (origin != null && destination != null) {
+      cameraUpdate = centerMap(
+        origin.position,
+        destination.position,
+        padding: 50,
+      );
+      polylines = await createRoute(
+        polylines: this.state.polylines,
+        origin: origin.position,
+        destination: destination.position,
+      );
+    }
+
+    yield this.state.copyWith(
+          markers: markers,
+          origin: origin,
+          destination: destination,
+          history: history,
+          polylines: polylines,
+        );
+
+    if (cameraUpdate != null) {
+      (await _mapController).animateCamera(cameraUpdate);
+    }
   }
 
   Stream<HomeState> _mapOnMyLocationUpdate(OnMyLocationUpdate event) async* {
@@ -145,34 +186,6 @@ class HomeBloc extends Bloc<HomeEvents, HomeState> {
           );
     } else {
       yield this.state.copyWith(myLocation: event.location);
-    }
-  }
-
-  Stream<HomeState> _mapGoToPlace(GoToPlace event) async* {
-    final history = Map<String, Place>.from(this.state.history);
-    // final MarkerId markerId = MarkerId('place');
-
-    // final Uint8List bytes = await placeToMarker(event.place);
-
-    // final Marker marker = Marker(
-    //   markerId: markerId,
-    //   position: event.place.position,
-    //   icon: BitmapDescriptor.fromBytes(bytes),
-    // );
-
-    // final markers = Map<MarkerId, Marker>.from(this.state.markers);
-    // markers[markerId] = marker;
-
-    if (history[event.place.id] == null) {
-      history[event.place.id] = event.place;
-      yield this.state.copyWith(
-            history: history,
-            destination: event.place,
-            // markers: markers,
-          );
-    } else {
-      //yield this.state.copyWith(markers: markers);
-      yield this.state.copyWith(destination: event.place);
     }
   }
 }

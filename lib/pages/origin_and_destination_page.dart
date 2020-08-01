@@ -7,9 +7,16 @@ import 'package:google_maps/models/place.dart';
 import 'package:google_maps/utils/debounce.dart';
 
 class OriginAndDestinationPage extends StatefulWidget {
-  final Place origin;
+  final Place origin, destination;
+  final List<Place> history;
+  final void Function(Place origin) onOriginChanged;
 
-  const OriginAndDestinationPage({Key key, @required this.origin})
+  const OriginAndDestinationPage(
+      {Key key,
+      @required this.origin,
+      @required this.destination,
+      @required this.history,
+      @required this.onOriginChanged})
       : super(key: key);
 
   @override
@@ -21,7 +28,11 @@ class _OriginAndDestinationPageState extends State<OriginAndDestinationPage> {
   final FocusNode _originFocus = FocusNode();
   final FocusNode _destinationFocus = FocusNode();
 
-  bool _originHasFocus = true;
+  bool _searching = false;
+  List<Place> _results = [];
+  ValueNotifier<String> _query = ValueNotifier('');
+
+  bool _originHasFocus = false;
   SearchAPI _searchAPI = SearchAPI.instance;
   Debounce _debounce = Debounce(Duration(milliseconds: 300));
   StreamSubscription _subscription;
@@ -31,7 +42,14 @@ class _OriginAndDestinationPageState extends State<OriginAndDestinationPage> {
   void initState() {
     super.initState();
     _originController = TextEditingController(text: widget.origin.title);
-    _destinationController = TextEditingController();
+    if (widget.destination != null) {
+      _destinationController = TextEditingController(
+        text: widget.destination.title,
+      );
+    } else {
+      _destinationController = TextEditingController();
+    }
+
     _originFocus.addListener(() {
       setState(() {
         _originHasFocus = true;
@@ -43,6 +61,8 @@ class _OriginAndDestinationPageState extends State<OriginAndDestinationPage> {
         _originHasFocus = false;
       });
     });
+
+    _destinationFocus.requestFocus();
   }
 
   @override
@@ -58,14 +78,23 @@ class _OriginAndDestinationPageState extends State<OriginAndDestinationPage> {
   }
 
   _onInputChanged(String query) {
+    _query.value = query;
     if (_subscription != null) {
       _subscription.cancel();
     }
+    _debounce.cancel();
     if (query.trim().length >= 3) {
-      _searchAPI.cancel();
+      setState(() {
+        _searching = true;
+      });
       _debounce.create(() => this._search(query));
     } else {
-      _debounce.cancel();
+      if (_searching || _results.length > 0) {
+        setState(() {
+          _searching = false;
+          _results = [];
+        });
+      }
       _searchAPI.cancel();
     }
   }
@@ -78,10 +107,57 @@ class _OriginAndDestinationPageState extends State<OriginAndDestinationPage> {
         )
         .asStream()
         .listen((List<Place> results) {
-      if (results != null) {
-        print("llego ${results.length}");
-      }
+      setState(() {
+        _searching = false;
+        _results = results ?? [];
+      });
     });
+  }
+
+  Widget _buildList(bool isHistory) {
+    List<Place> items = isHistory ? widget.history : this._results;
+
+    if (isHistory) {
+      items = items.where((e) {
+        if (e.title.toLowerCase().contains(_query.value)) {
+          return true;
+        }
+
+        if (e.vicinity.toLowerCase().contains(_query.value)) {
+          return true;
+        }
+
+        return false;
+      }).toList();
+    }
+
+    return ListView.builder(
+      itemBuilder: (_, index) {
+        final Place item = items[index];
+        return ListTile(
+          leading: isHistory ? Icon(Icons.history) : null,
+          onTap: () {
+            if (_originHasFocus) {
+              _originController.text = item.title;
+              widget.onOriginChanged(item);
+              _destinationFocus.requestFocus();
+            } else {
+              Navigator.pop(context, item);
+            }
+          },
+          title: Text(
+            item.title,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          subtitle: Text(
+            item.vicinity.replaceAll('<br/>', ' - '),
+          ),
+        );
+      },
+      itemCount: items.length,
+    );
   }
 
   @override
@@ -132,7 +208,22 @@ class _OriginAndDestinationPageState extends State<OriginAndDestinationPage> {
                     ),
                   ],
                 ),
-              )
+              ),
+              if (_searching)
+                Expanded(
+                  child: Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                )
+              else
+                Expanded(
+                  child: ValueListenableBuilder<String>(
+                    valueListenable: this._query,
+                    builder: (_, query, __) => _buildList(
+                      query.trim().length >= 3 ? false : true,
+                    ),
+                  ),
+                ),
             ],
           ),
         ),
