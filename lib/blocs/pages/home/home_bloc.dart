@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io' show Platform;
 import 'dart:typed_data';
 import 'dart:math' as math;
@@ -10,6 +11,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps/models/place.dart';
 import 'package:google_maps/pages/origin_and_destination_page.dart';
 import 'package:google_maps/utils/extras.dart';
+import 'package:google_maps/utils/map_style.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location_permissions/location_permissions.dart';
 import 'bloc.dart';
@@ -104,6 +106,7 @@ class HomeBloc extends Bloc<HomeEvents, HomeState> {
     if (_completer.isCompleted) {
       _completer = Completer();
     }
+    controller.setMapStyle(jsonEncode(mapStyle));
     _completer.complete(controller);
   }
 

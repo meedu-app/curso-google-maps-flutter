@@ -56,12 +56,22 @@ class MyCustomMarker extends CustomPainter {
     );
   }
 
+  _shadow(Canvas canvas, double witdh, double height) {
+    final path = Path();
+    path.lineTo(0, height);
+    path.lineTo(witdh, height);
+    path.lineTo(witdh, 0);
+    path.close();
+    canvas.drawShadow(path, Colors.black, 5, true);
+  }
+
   @override
   void paint(Canvas canvas, Size size) {
     final Paint paint = Paint();
     paint.color = Colors.white;
 
     final height = size.height - 15;
+    _shadow(canvas, size.width, height);
 
     final RRect rrect = RRect.fromLTRBR(
       0,

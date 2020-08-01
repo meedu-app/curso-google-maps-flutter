@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:google_maps/widgets/bottom_view.dart';
 import 'package:google_maps/widgets/centered_marker.dart';
 import 'package:google_maps/widgets/custom_app_bar.dart';
 import 'package:google_maps/widgets/my_location_button.dart';
@@ -36,8 +37,8 @@ class _HomePageState extends State<HomePage> {
     return BlocProvider.value(
       value: this._bloc,
       child: Scaffold(
-        appBar: CustomAppBar(),
         body: SafeArea(
+          top: false,
           child: Container(
             width: double.infinity,
             height: double.infinity,
@@ -93,25 +94,7 @@ class _HomePageState extends State<HomePage> {
                         ],
                       ),
                     ),
-                    Container(
-                      padding: EdgeInsets.all(15),
-                      child: SizedBox(
-                        width: double.infinity,
-                        child: CupertinoButton(
-                          color: Color(0xffd2d2d2),
-                          child: Text(
-                            "A donde vas?",
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          onPressed: () {
-                            _bloc.whereYouGo(context);
-                          },
-                        ),
-                      ),
-                    )
+                    BottomView()
                   ],
                 );
               },

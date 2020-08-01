@@ -196,6 +196,9 @@ class _OriginAndDestinationPageState extends State<OriginAndDestinationPage> {
                       controller: _originController,
                       iconData: Icons.gps_fixed,
                       placeholder: "Tu punto de salida",
+                      onClear: () {
+                        _query.value = "";
+                      },
                     ),
                     SizedBox(height: 10),
                     _Input(
@@ -205,6 +208,9 @@ class _OriginAndDestinationPageState extends State<OriginAndDestinationPage> {
                       controller: _destinationController,
                       iconData: Icons.pin_drop,
                       placeholder: "Dinos a donde vas?",
+                      onClear: () {
+                        _query.value = "";
+                      },
                     ),
                   ],
                 ),
@@ -239,6 +245,7 @@ class _Input extends StatelessWidget {
   final bool hasFocus;
   final TextEditingController controller;
   final void Function(String) onChanged;
+  final VoidCallback onClear;
 
   const _Input(
       {Key key,
@@ -247,7 +254,8 @@ class _Input extends StatelessWidget {
       @required this.focusNode,
       this.hasFocus = false,
       this.controller,
-      @required this.onChanged})
+      @required this.onChanged,
+      this.onClear})
       : super(key: key);
   @override
   Widget build(BuildContext context) {
@@ -258,6 +266,25 @@ class _Input extends StatelessWidget {
       prefix: Padding(
         padding: EdgeInsets.all(5.0),
         child: Icon(this.iconData),
+      ),
+      suffix: Padding(
+        padding: EdgeInsets.only(right: 5),
+        child: CupertinoButton(
+          child: Icon(
+            Icons.clear,
+            size: 14,
+          ),
+          onPressed: () {
+            this.controller.text = "";
+            if (this.onClear != null) {
+              this.onClear();
+            }
+          },
+          minSize: 20,
+          padding: EdgeInsets.all(5),
+          borderRadius: BorderRadius.circular(20),
+          color: Colors.black26,
+        ),
       ),
       placeholder: this.placeholder,
       decoration: BoxDecoration(
