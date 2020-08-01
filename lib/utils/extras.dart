@@ -59,11 +59,11 @@ double getCoordsRotation(LatLng currentPosition, LatLng lastPosition) {
   return 90 - angle * 180 / math.pi;
 }
 
-Future<Uint8List> placeToMarker(Place place, Color color) async {
+Future<Uint8List> placeToMarker(Place place, {@required int duration}) async {
   ui.PictureRecorder recorder = ui.PictureRecorder();
   ui.Canvas canvas = ui.Canvas(recorder);
   final ui.Size size = ui.Size(300, 90);
-  MyCustomMarker customMarker = MyCustomMarker(place, color);
+  MyCustomMarker customMarker = MyCustomMarker(place, duration);
   customMarker.paint(canvas, size);
   ui.Picture picture = recorder.endRecording();
   final ui.Image image = await picture.toImage(
@@ -142,7 +142,7 @@ Marker createMarker({
   return marker;
 }
 
-Future<Map<PolylineId, Polyline>> createRoute({
+Future<RouteData> createRoute({
   @required Map<PolylineId, Polyline> polylines,
   @required LatLng origin,
   @required LatLng destination,
@@ -159,13 +159,18 @@ Future<Map<PolylineId, Polyline>> createRoute({
 
     final Polyline polyline = Polyline(
       polylineId: polylineId,
-      width: 4,
-      color: Colors.blue,
+      width: 3,
+      color: Colors.black,
       points: points,
     );
     newPolylines[polylineId] = polyline;
-
-    return newPolylines;
+    return RouteData(route, newPolylines);
   }
   return null;
+}
+
+class RouteData {
+  final heremaps.Route route;
+  final Map<PolylineId, Polyline> polylines;
+  RouteData(this.route, this.polylines);
 }

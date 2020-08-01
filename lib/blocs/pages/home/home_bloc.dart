@@ -122,22 +122,11 @@ class HomeBloc extends Bloc<HomeEvents, HomeState> {
   }
 
   Stream<HomeState> _mapConfirmPoint(ConfirmPoint event) async* {
-    final Uint8List bytes = await placeToMarker(
-      event.place,
-      event.isOrigin ? Colors.green : Colors.redAccent,
-    );
-    final Marker marker = createMarker(
-      id: event.isOrigin ? 'origin' : 'destination',
-      position: event.place.position,
-      bytes: bytes,
-    );
-
     final Place origin = event.isOrigin ? event.place : this.state.origin;
     final Place destination =
         !event.isOrigin ? event.place : this.state.destination;
 
     final markers = Map<MarkerId, Marker>.from(this.state.markers);
-    markers[marker.markerId] = marker;
 
     final history = Map<String, Place>.from(this.state.history);
     history[event.place.id] = event.place;
@@ -150,13 +139,33 @@ class HomeBloc extends Bloc<HomeEvents, HomeState> {
       cameraUpdate = centerMap(
         origin.position,
         destination.position,
-        padding: 50,
+        padding: 80,
       );
-      polylines = await createRoute(
+      final routeData = await createRoute(
         polylines: this.state.polylines,
         origin: origin.position,
         destination: destination.position,
       );
+      if (routeData != null) {
+        polylines = routeData.polylines;
+        Uint8List bytes = await placeToMarker(origin, duration: null);
+        final Marker originMarker = createMarker(
+          id: 'origin',
+          position: origin.position,
+          bytes: bytes,
+        );
+        bytes = await placeToMarker(
+          destination,
+          duration: routeData.route.duration ~/ 60,
+        );
+        final Marker destinationMarker = createMarker(
+          id: 'destination',
+          position: destination.position,
+          bytes: bytes,
+        );
+        markers[originMarker.markerId] = originMarker;
+        markers[destinationMarker.markerId] = destinationMarker;
+      }
     }
 
     yield this.state.copyWith(
