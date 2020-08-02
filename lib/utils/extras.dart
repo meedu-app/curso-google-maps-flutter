@@ -1,3 +1,4 @@
+import 'dart:io' show Platform;
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'dart:math' as math;
@@ -77,6 +78,41 @@ Future<Uint8List> placeToMarker(Place place, {@required int duration}) async {
   return byteData.buffer.asUint8List();
 }
 
+double deg2rad(deg) {
+  return deg * (math.pi / 180);
+}
+
+/// calculates the distance between two coords in km
+double getDistanceInKM(LatLng position1, LatLng position2) {
+  final lat1 = position1.latitude;
+  final lon1 = position1.longitude;
+  final lat2 = position2.latitude;
+  final lon2 = position2.longitude;
+
+  final R = 6371; // Radius of the earth in km
+  final dLat = deg2rad(lat2 - lat1); // deg2rad below
+  final dLon = deg2rad(lon2 - lon1);
+  final a = math.sin(dLat / 2) * math.sin(dLat / 2) +
+      math.cos(deg2rad(lat1)) *
+          math.cos(deg2rad(lat2)) *
+          math.sin(dLon / 2) *
+          math.sin(dLon / 2);
+  final c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a));
+  final d = R * c; // Distance in km
+
+  return d;
+}
+
+dynamic getZoom(LatLng origin, LatLng destination) {
+  final linearDistance = getDistanceInKM(origin, destination);
+
+  double radius = linearDistance / 2;
+  double scale = radius / 0.3;
+  final zoom = (16 - math.log(scale) / math.log(2));
+
+  return zoom;
+}
+
 CameraUpdate centerMap(LatLng origin, LatLng destination,
     {double padding = 30}) {
   final double left = math.min(origin.latitude, destination.latitude);
@@ -91,11 +127,19 @@ CameraUpdate centerMap(LatLng origin, LatLng destination,
     northeast: northeast,
   );
 
-  final CameraUpdate cameraUpdate = CameraUpdate.newLatLngBounds(
-    bounds,
-    padding,
+  if (Platform.isIOS) {
+    final CameraUpdate cameraUpdate = CameraUpdate.newLatLngBounds(
+      bounds,
+      padding,
+    );
+    return cameraUpdate;
+  }
+  final LatLng center = LatLng(
+    (southwest.latitude + northeast.latitude) / 2,
+    (southwest.longitude + northeast.longitude) / 2,
   );
-  return cameraUpdate;
+  final zoom = getZoom(origin, destination);
+  return CameraUpdate.newLatLngZoom(center, zoom);
 }
 
 List<LatLng> decodeEncodedPolyline(String encoded) {
