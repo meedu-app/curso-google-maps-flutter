@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_maps/blocs/pages/home/bloc.dart';
 import 'package:google_maps/blocs/pages/home/home_bloc.dart';
 import 'package:google_maps/blocs/pages/home/home_state.dart';
 
@@ -13,6 +14,9 @@ class BottomView extends StatelessWidget {
 
     return BlocBuilder<HomeBloc, HomeState>(builder: (_, state) {
       final bool confirm = state.origin != null && state.destination != null;
+
+      final bool confirmEnabled = state.reverseGeocodeTask != null &&
+          state.reverseGeocodeTask.place != null;
 
       return Container(
         padding: EdgeInsets.all(15),
@@ -58,7 +62,17 @@ class BottomView extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  onPressed: () {},
+                  onPressed: confirmEnabled
+                      ? () {
+                          final bool isOrigin = state.mapPick == MapPick.origin;
+                          bloc.add(
+                            ConfirmPoint(
+                              state.reverseGeocodeTask.place,
+                              isOrigin,
+                            ),
+                          );
+                        }
+                      : null,
                 ),
               )
           ],

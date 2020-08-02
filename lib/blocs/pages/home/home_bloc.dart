@@ -79,10 +79,13 @@ class HomeBloc extends Bloc<HomeEvents, HomeState> {
 
   goToMyPosition() async {
     if (this.state.myLocation != null) {
-      final CameraUpdate cameraUpdate =
-          CameraUpdate.newLatLng(this.state.myLocation);
-      await (await _mapController).moveCamera(cameraUpdate);
+      this._goTo(this.state.myLocation);
     }
+  }
+
+  _goTo(LatLng position) async {
+    final CameraUpdate cameraUpdate = CameraUpdate.newLatLng(position);
+    await (await _mapController).moveCamera(cameraUpdate);
   }
 
   whereYouGo(BuildContext context) async {
@@ -166,6 +169,14 @@ class HomeBloc extends Bloc<HomeEvents, HomeState> {
 
     Map<PolylineId, Polyline> polylines;
 
+    Uint8List bytes = await placeToMarker(origin, duration: null);
+    final Marker originMarker = createMarker(
+      id: 'origin',
+      position: origin.position,
+      bytes: bytes,
+    );
+    markers[originMarker.markerId] = originMarker;
+
     if (origin != null && destination != null) {
       cameraUpdate = centerMap(
         origin.position,
@@ -179,12 +190,7 @@ class HomeBloc extends Bloc<HomeEvents, HomeState> {
       );
       if (routeData != null) {
         polylines = routeData.polylines;
-        Uint8List bytes = await placeToMarker(origin, duration: null);
-        final Marker originMarker = createMarker(
-          id: 'origin',
-          position: origin.position,
-          bytes: bytes,
-        );
+
         bytes = await placeToMarker(
           destination,
           duration: routeData.route.duration ~/ 60,
@@ -194,7 +200,7 @@ class HomeBloc extends Bloc<HomeEvents, HomeState> {
           position: destination.position,
           bytes: bytes,
         );
-        markers[originMarker.markerId] = originMarker;
+
         markers[destinationMarker.markerId] = destinationMarker;
       }
     }
