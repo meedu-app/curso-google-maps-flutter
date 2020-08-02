@@ -69,6 +69,7 @@ class BottomView extends StatelessWidget {
                             ConfirmPoint(
                               state.reverseGeocodeTask.place,
                               isOrigin,
+                              context: context,
                             ),
                           );
                         }

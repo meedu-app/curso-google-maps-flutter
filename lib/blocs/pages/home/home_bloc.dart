@@ -177,7 +177,10 @@ class HomeBloc extends Bloc<HomeEvents, HomeState> {
     );
     markers[originMarker.markerId] = originMarker;
 
+    MapPick mapPick;
+
     if (origin != null && destination != null) {
+      mapPick = MapPick.none;
       cameraUpdate = centerMap(
         origin.position,
         destination.position,
@@ -211,10 +214,15 @@ class HomeBloc extends Bloc<HomeEvents, HomeState> {
           destination: destination,
           history: history,
           polylines: polylines,
+          mapPick: mapPick,
         );
 
     if (cameraUpdate != null) {
       (await _mapController).animateCamera(cameraUpdate);
+    }
+
+    if (origin != null && destination == null) {
+      this.whereYouGo(event.context);
     }
   }
 

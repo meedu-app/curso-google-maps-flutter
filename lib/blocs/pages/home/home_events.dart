@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:google_maps/blocs/pages/home/home_state.dart';
 import 'package:google_maps/models/place.dart';
 import 'package:google_maps/models/reverse_geocode_task.dart';
@@ -31,7 +32,8 @@ class OnGpsEnabled extends HomeEvents {
 class ConfirmPoint extends HomeEvents {
   final Place place;
   final bool isOrigin;
-  ConfirmPoint(this.place, this.isOrigin);
+  final BuildContext context;
+  ConfirmPoint(this.place, this.isOrigin, {this.context});
 }
 
 class OnMapPick extends HomeEvents {
