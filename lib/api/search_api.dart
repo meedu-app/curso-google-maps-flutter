@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:google_maps/models/place.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import '../utils/latlng_extension.dart';
 
 class SearchAPI {
   SearchAPI._internal();
@@ -18,7 +19,7 @@ class SearchAPI {
               queryParameters: {
                 "q": query,
                 "apiKey": "Gbc7sCYsHl8GPkkVoq4RsgSGURIkmBrTRqMDv8oIqm8",
-                "at": "${at.latitude},${at.longitude}",
+                "at": at.format(),
               },
               cancelToken: _cancelToken);
       final List<Place> places = (response.data['results'] as List)

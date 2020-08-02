@@ -10,14 +10,16 @@ class OriginAndDestinationPage extends StatefulWidget {
   final Place origin, destination;
   final List<Place> history;
   final void Function(Place origin) onOriginChanged;
+  final void Function(bool isOrigin) onMapPick;
 
-  const OriginAndDestinationPage(
-      {Key key,
-      @required this.origin,
-      @required this.destination,
-      @required this.history,
-      @required this.onOriginChanged})
-      : super(key: key);
+  const OriginAndDestinationPage({
+    Key key,
+    @required this.origin,
+    @required this.destination,
+    @required this.history,
+    @required this.onOriginChanged,
+    @required this.onMapPick,
+  }) : super(key: key);
 
   @override
   _OriginAndDestinationPageState createState() =>
@@ -214,6 +216,15 @@ class _OriginAndDestinationPageState extends State<OriginAndDestinationPage> {
                     ),
                   ],
                 ),
+              ),
+              CupertinoButton(
+                child: Text(
+                  "Definir ${this._originHasFocus ? 'origen' : 'destino'} en el mapa",
+                ),
+                onPressed: () {
+                  widget.onMapPick(_originHasFocus);
+                  Navigator.pop(context);
+                },
               ),
               if (_searching)
                 Expanded(

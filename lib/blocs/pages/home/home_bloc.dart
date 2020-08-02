@@ -6,9 +6,11 @@ import 'dart:math' as math;
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_maps/api/reverse_geocode_api.dart';
 import 'package:google_maps/blocs/pages/home/bloc.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps/models/place.dart';
+import 'package:google_maps/models/reverse_geocode_task.dart';
 import 'package:google_maps/pages/origin_and_destination_page.dart';
 import 'package:google_maps/utils/extras.dart';
 import 'package:google_maps/utils/map_style.dart';
@@ -27,6 +29,8 @@ class HomeBloc extends Bloc<HomeEvents, HomeState> {
     accuracy: LocationAccuracy.high,
     distanceFilter: 10,
   );
+
+  ReverseGeocodeAPI _reverseGeocodeAPI = ReverseGeocodeAPI.instance;
 
   StreamSubscription<Position> _subscription;
   StreamSubscription<ServiceStatus> _subscriptionGpsStatus;
@@ -93,6 +97,11 @@ class HomeBloc extends Bloc<HomeEvents, HomeState> {
             ConfirmPoint(origin, true),
           );
         },
+        onMapPick: (bool isOrigin) {
+          add(
+            OnMapPick(isOrigin ? MapPick.origin : MapPick.destination),
+          );
+        },
       ),
       fullscreenDialog: true,
     );
@@ -100,6 +109,18 @@ class HomeBloc extends Bloc<HomeEvents, HomeState> {
     if (itemSelected != null) {
       add(ConfirmPoint(itemSelected, false));
     }
+  }
+
+  void onCameraMoveStarted() {
+    ReverseGeocodeTask task = ReverseGeocodeTask(
+      isOrigin: this.state.mapPick == MapPick.origin,
+    );
+    add(AddReverseGeocodeTask(task));
+  }
+
+  Future<void> reverseGeocode(LatLng at) async {
+    final place = await _reverseGeocodeAPI.reverse(at);
+    add(FinishReverseGeocodeTask(place));
   }
 
   void setMapController(GoogleMapController controller) {
@@ -121,6 +142,13 @@ class HomeBloc extends Bloc<HomeEvents, HomeState> {
       yield this.state.copyWith(gpsEnabled: event.enabled);
     } else if (event is ConfirmPoint) {
       yield* this._mapConfirmPoint(event);
+    } else if (event is OnMapPick) {
+      yield this.state.copyWith(mapPick: event.pick);
+    } else if (event is AddReverseGeocodeTask) {
+      yield this.state.copyWith(reverseGeocodeTask: event.task);
+    } else if (event is FinishReverseGeocodeTask) {
+      final task = this.state.reverseGeocodeTask.copyWith(place: event.place);
+      yield this.state.copyWith(reverseGeocodeTask: task);
     }
   }
 

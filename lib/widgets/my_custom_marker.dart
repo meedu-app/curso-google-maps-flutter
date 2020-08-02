@@ -104,7 +104,7 @@ class MyCustomMarker extends CustomPainter {
         canvas: canvas,
         texts: ["${this.duration}\n", "MIN"],
         width: height,
-        fontSize: 20,
+        fontSize: 24,
         textAlign: TextAlign.center,
         offset: Offset(0, height / 2),
         color: Colors.white,
@@ -116,6 +116,7 @@ class MyCustomMarker extends CustomPainter {
       texts: [this.place.title],
       width: size.width - height - 20,
       offset: Offset(height + 10, height / 2),
+      fontSize: 24,
     );
   }
 

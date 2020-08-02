@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:google_maps/models/route.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import '../utils/latlng_extension.dart';
 
 class RoutingAPI {
   RoutingAPI._internal();
@@ -14,8 +15,8 @@ class RoutingAPI {
           ._dio
           .get('https://router.hereapi.com/v8/routes', queryParameters: {
         "transportMode": "car",
-        "origin": "${origin.latitude},${origin.longitude}",
-        "destination": "${destination.latitude},${destination.longitude}",
+        "origin": origin.format(),
+        "destination": destination.format(),
         "return": "summary,polyline",
         "apiKey": "Gbc7sCYsHl8GPkkVoq4RsgSGURIkmBrTRqMDv8oIqm8",
         "routingMode": "fast",

@@ -40,6 +40,8 @@ dependencies:
   flutter_html: ^1.0.0
   auto_size_text: ^2.1.0
   flexible_polyline: 1.0.0-alpha
+  sliding_up_panel: ^1.0.2
+  flutter_spinkit: ^4.1.2+1
 
 
 dependency_overrides:

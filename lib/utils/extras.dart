@@ -62,7 +62,7 @@ double getCoordsRotation(LatLng currentPosition, LatLng lastPosition) {
 Future<Uint8List> placeToMarker(Place place, {@required int duration}) async {
   ui.PictureRecorder recorder = ui.PictureRecorder();
   ui.Canvas canvas = ui.Canvas(recorder);
-  final ui.Size size = ui.Size(300, 90);
+  final ui.Size size = ui.Size(350, 110);
   MyCustomMarker customMarker = MyCustomMarker(place, duration);
   customMarker.paint(canvas, size);
   ui.Picture picture = recorder.endRecording();

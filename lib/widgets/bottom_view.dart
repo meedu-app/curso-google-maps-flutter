@@ -16,24 +16,52 @@ class BottomView extends StatelessWidget {
 
       return Container(
         padding: EdgeInsets.all(15),
-        child: SizedBox(
-          width: double.infinity,
-          child: CupertinoButton(
-            color: confirm ? Color(0xff102027) : Color(0xffd2d2d2),
-            child: Text(
-              confirm ? "Solicitar conductor" : "A donde vas?",
-              style: TextStyle(
-                color: confirm ? Colors.white : Colors.black,
-                fontWeight: FontWeight.bold,
-              ),
+        child: Column(
+          children: <Widget>[
+            Container(
+              width: 60,
+              height: 4,
+              margin: EdgeInsets.only(bottom: 15),
+              decoration: BoxDecoration(
+                  color: Colors.black26,
+                  borderRadius: BorderRadius.circular(4)),
             ),
-            onPressed: () {
-              if (confirm) {
-              } else {
-                bloc.whereYouGo(context);
-              }
-            },
-          ),
+            if (state.mapPick == MapPick.none)
+              SizedBox(
+                width: double.infinity,
+                child: CupertinoButton(
+                  color: confirm ? Color(0xff102027) : Color(0xffd2d2d2),
+                  child: Text(
+                    confirm ? "Solicitar conductor" : "A donde vas?",
+                    style: TextStyle(
+                      color: confirm ? Colors.white : Colors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  onPressed: () {
+                    if (confirm) {
+                    } else {
+                      bloc.whereYouGo(context);
+                    }
+                  },
+                ),
+              )
+            else
+              SizedBox(
+                width: double.infinity,
+                child: CupertinoButton(
+                  color: Color(0xff102027),
+                  child: Text(
+                    "Confirmar ${state.mapPick == MapPick.origin ? "origen" : "destino"}",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  onPressed: () {},
+                ),
+              )
+          ],
         ),
       );
     });

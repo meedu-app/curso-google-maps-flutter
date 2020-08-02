@@ -1,9 +1,12 @@
 import 'package:equatable/equatable.dart';
 import 'package:google_maps/models/place.dart';
+import 'package:google_maps/models/reverse_geocode_task.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:io' show Platform;
 
 import '../../../models/place.dart';
+
+enum MapPick { none, origin, destination }
 
 class HomeState extends Equatable {
   final LatLng myLocation;
@@ -13,6 +16,8 @@ class HomeState extends Equatable {
   final Map<PolygonId, Polygon> polygons;
   final Map<String, Place> history;
   final Place origin, destination;
+  final MapPick mapPick;
+  final ReverseGeocodeTask reverseGeocodeTask;
 
   HomeState({
     this.myLocation,
@@ -24,6 +29,8 @@ class HomeState extends Equatable {
     this.history,
     this.destination,
     this.origin,
+    this.mapPick,
+    this.reverseGeocodeTask,
   });
 
   static HomeState get initialState => new HomeState(
@@ -34,18 +41,22 @@ class HomeState extends Equatable {
         polygons: Map(),
         history: Map(),
         gpsEnabled: Platform.isIOS,
+        mapPick: MapPick.none,
       );
 
-  HomeState copyWith(
-      {LatLng myLocation,
-      bool loading,
-      bool gpsEnabled,
-      Map<MarkerId, Marker> markers,
-      Map<PolylineId, Polyline> polylines,
-      Map<PolygonId, Polygon> polygons,
-      Map<String, Place> history,
-      Place origin,
-      Place destination}) {
+  HomeState copyWith({
+    LatLng myLocation,
+    bool loading,
+    bool gpsEnabled,
+    Map<MarkerId, Marker> markers,
+    Map<PolylineId, Polyline> polylines,
+    Map<PolygonId, Polygon> polygons,
+    Map<String, Place> history,
+    Place origin,
+    Place destination,
+    MapPick mapPick,
+    ReverseGeocodeTask reverseGeocodeTask,
+  }) {
     return HomeState(
       myLocation: myLocation ?? this.myLocation,
       loading: loading ?? this.loading,
@@ -56,6 +67,8 @@ class HomeState extends Equatable {
       history: history ?? this.history,
       origin: origin ?? this.origin,
       destination: destination ?? this.destination,
+      mapPick: mapPick ?? this.mapPick,
+      reverseGeocodeTask: reverseGeocodeTask ?? this.reverseGeocodeTask,
     );
   }
 
@@ -69,5 +82,8 @@ class HomeState extends Equatable {
         history,
         origin,
         destination,
+        mapPick,
+        polygons,
+        reverseGeocodeTask,
       ];
 }

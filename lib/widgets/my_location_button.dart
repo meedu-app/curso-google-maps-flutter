@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-
-import '../blocs/pages/home/home_bloc.dart';
 import '../blocs/pages/home/home_bloc.dart';
 
 class MyLocationButton extends StatelessWidget {
@@ -10,7 +8,7 @@ class MyLocationButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final HomeBloc bloc = HomeBloc.of(context);
     return Positioned(
-      bottom: 15,
+      bottom: 165,
       right: 15,
       child: FloatingActionButton(
         onPressed: () => bloc.goToMyPosition(),
