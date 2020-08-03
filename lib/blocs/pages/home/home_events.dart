@@ -32,8 +32,8 @@ class OnGpsEnabled extends HomeEvents {
 class ConfirmPoint extends HomeEvents {
   final Place place;
   final bool isOrigin;
-  final BuildContext context;
-  ConfirmPoint(this.place, this.isOrigin, {this.context});
+
+  ConfirmPoint(this.place, this.isOrigin);
 }
 
 class OnMapPick extends HomeEvents {
@@ -50,3 +50,5 @@ class FinishReverseGeocodeTask extends HomeEvents {
   final Place place;
   FinishReverseGeocodeTask(this.place);
 }
+
+class Reset extends HomeEvents {}

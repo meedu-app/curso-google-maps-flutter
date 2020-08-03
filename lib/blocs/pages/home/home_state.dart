@@ -72,6 +72,25 @@ class HomeState extends Equatable {
     );
   }
 
+  HomeState reset() {
+    Place origin = Place(
+      id: 'origin',
+      title: "Mi ubicación",
+      position: this.myLocation,
+    );
+    return HomeState(
+      origin: origin,
+      myLocation: this.myLocation,
+      loading: false,
+      markers: Map(),
+      polylines: Map(),
+      polygons: Map(),
+      history: this.history,
+      gpsEnabled: this.gpsEnabled,
+      mapPick: MapPick.none,
+    );
+  }
+
   @override
   List<Object> get props => [
         myLocation,

@@ -11,6 +11,7 @@ class OriginAndDestinationPage extends StatefulWidget {
   final List<Place> history;
   final void Function(Place origin) onOriginChanged;
   final void Function(bool isOrigin) onMapPick;
+  final bool hasOriginFocus;
 
   const OriginAndDestinationPage({
     Key key,
@@ -19,6 +20,7 @@ class OriginAndDestinationPage extends StatefulWidget {
     @required this.history,
     @required this.onOriginChanged,
     @required this.onMapPick,
+    this.hasOriginFocus = false,
   }) : super(key: key);
 
   @override
@@ -43,6 +45,7 @@ class _OriginAndDestinationPageState extends State<OriginAndDestinationPage> {
   @override
   void initState() {
     super.initState();
+    _originHasFocus = widget.hasOriginFocus;
     _originController = TextEditingController(text: widget.origin.title);
     if (widget.destination != null) {
       _destinationController = TextEditingController(
@@ -64,7 +67,11 @@ class _OriginAndDestinationPageState extends State<OriginAndDestinationPage> {
       });
     });
 
-    _destinationFocus.requestFocus();
+    if (_originHasFocus) {
+      _originFocus.requestFocus();
+    } else {
+      _destinationFocus.requestFocus();
+    }
   }
 
   @override

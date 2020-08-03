@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:google_maps/widgets/reset_button.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:google_maps/widgets/bottom_view.dart';
 import 'package:google_maps/widgets/centered_marker.dart';
@@ -37,86 +38,82 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final bottomHeight = MediaQuery.of(context).padding.bottom;
     return BlocProvider.value(
       value: this._bloc,
       child: Scaffold(
-        body: SafeArea(
-          top: false,
-          child: Container(
-            width: double.infinity,
-            height: double.infinity,
-            child: SlidingUpPanel(
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(20),
-                topRight: Radius.circular(20),
-              ),
-              panel: BottomView(),
-              body: BlocBuilder<HomeBloc, HomeState>(
-                builder: (_, state) {
-                  if (!state.gpsEnabled) {
-                    return Center(
-                      child: Text(
-                        "Para utilizar la app active el GPS",
-                        textAlign: TextAlign.center,
-                      ),
-                    );
-                  }
-
-                  if (state.loading) {
-                    return Center(
-                      child: CircularProgressIndicator(
-                        backgroundColor: Colors.red,
-                      ),
-                    );
-                  }
-
-                  final CameraPosition initialPosition = CameraPosition(
-                    target: state.myLocation,
-                    zoom: 15,
+        body: SlidingUpPanel(
+          panel: BottomView(),
+          minHeight: 100 + bottomHeight,
+          body: SafeArea(
+            bottom: false,
+            child: BlocBuilder<HomeBloc, HomeState>(
+              builder: (_, state) {
+                if (!state.gpsEnabled) {
+                  return Center(
+                    child: Text(
+                      "Para utilizar la app active el GPS",
+                      textAlign: TextAlign.center,
+                    ),
                   );
+                }
 
-                  return Column(
-                    children: <Widget>[
-                      Expanded(
-                        child: Stack(
-                          alignment: Alignment.center,
-                          children: <Widget>[
-                            GoogleMap(
-                              initialCameraPosition: initialPosition,
-                              zoomControlsEnabled: false,
-                              compassEnabled: false,
-                              myLocationEnabled: true,
-                              onCameraMoveStarted: () {
-                                print("onCameraMoveStarted");
-                                if (state.mapPick != MapPick.none) {
-                                  this._bloc.onCameraMoveStarted();
-                                }
-                              },
-                              onCameraMove: (cameraPosition) {
-                                this._at = cameraPosition.target;
-                              },
-                              onCameraIdle: () {
-                                if (state.mapPick != MapPick.none) {
-                                  this._bloc.reverseGeocode(this._at);
-                                }
-                              },
-                              markers: state.markers.values.toSet(),
-                              polylines: state.polylines.values.toSet(),
-                              polygons: state.polygons.values.toSet(),
-                              myLocationButtonEnabled: false,
-                              onMapCreated: (GoogleMapController controller) {
-                                this._bloc.setMapController(controller);
-                              },
-                            ),
-                            MyLocationButton(),
-                            CenteredMarked()
-                          ],
-                        ),
-                      ),
-                    ],
+                if (state.loading) {
+                  return Center(
+                    child: CircularProgressIndicator(
+                      backgroundColor: Colors.red,
+                    ),
                   );
-                },
-              ),
+                }
+
+                final CameraPosition initialPosition = CameraPosition(
+                  target: state.myLocation,
+                  zoom: 15,
+                );
+
+                return Column(
+                  children: <Widget>[
+                    Expanded(
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: <Widget>[
+                          GoogleMap(
+                            initialCameraPosition: initialPosition,
+                            zoomControlsEnabled: false,
+                            compassEnabled: false,
+                            myLocationEnabled: true,
+                            onCameraMoveStarted: () {
+                              print("onCameraMoveStarted");
+                              if (state.mapPick != MapPick.none) {
+                                this._bloc.onCameraMoveStarted();
+                              }
+                            },
+                            onCameraMove: (cameraPosition) {
+                              this._at = cameraPosition.target;
+                            },
+                            onCameraIdle: () {
+                              if (state.mapPick != MapPick.none) {
+                                this._bloc.reverseGeocode(this._at);
+                              }
+                            },
+                            markers: state.markers.values.toSet(),
+                            polylines: state.polylines.values.toSet(),
+                            polygons: state.polygons.values.toSet(),
+                            myLocationButtonEnabled: false,
+                            onMapCreated: (GoogleMapController controller) {
+                              this._bloc.setMapController(controller);
+                            },
+                          ),
+                          MyLocationButton(),
+                          CenteredMarked(),
+                          ResetButton()
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 100 + bottomHeight),
+                  ],
+                );
+              },
             ),
           ),
         ),

@@ -15,7 +15,7 @@ class CenteredMarked extends StatelessWidget {
       if (state.mapPick == MapPick.none) return Container();
 
       return Transform.translate(
-        offset: Offset(0, -22),
+        offset: Offset(0, -26),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[

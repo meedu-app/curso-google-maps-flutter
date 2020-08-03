@@ -172,16 +172,17 @@ List<LatLng> decodeEncodedPolyline(String encoded) {
   return poly;
 }
 
-Marker createMarker({
-  @required String id,
-  @required LatLng position,
-  @required Uint8List bytes,
-}) {
+Marker createMarker(
+    {@required String id,
+    @required LatLng position,
+    @required Uint8List bytes,
+    VoidCallback onTap}) {
   final markerId = MarkerId(id);
   final marker = Marker(
     markerId: markerId,
     position: position,
     icon: BitmapDescriptor.fromBytes(bytes),
+    onTap: onTap,
   );
   return marker;
 }

@@ -45,7 +45,7 @@ class BottomView extends StatelessWidget {
                   onPressed: () {
                     if (confirm) {
                     } else {
-                      bloc.whereYouGo(context);
+                      bloc.whereYouGo();
                     }
                   },
                 ),
@@ -69,7 +69,6 @@ class BottomView extends StatelessWidget {
                             ConfirmPoint(
                               state.reverseGeocodeTask.place,
                               isOrigin,
-                              context: context,
                             ),
                           );
                         }

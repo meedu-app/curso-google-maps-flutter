@@ -6,6 +6,7 @@ import 'dart:math' as math;
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/route_manager.dart';
 import 'package:google_maps/api/reverse_geocode_api.dart';
 import 'package:google_maps/blocs/pages/home/bloc.dart';
 import 'package:geolocator/geolocator.dart';
@@ -88,27 +89,28 @@ class HomeBloc extends Bloc<HomeEvents, HomeState> {
     await (await _mapController).moveCamera(cameraUpdate);
   }
 
-  whereYouGo(BuildContext context) async {
+  whereYouGo({bool hasOriginFocus = false}) async {
     final List<Place> history = this.state.history.values.toList();
-    final route = MaterialPageRoute<Place>(
-      builder: (_) => OriginAndDestinationPage(
-        origin: this.state.origin,
-        destination: this.state.destination,
-        history: history,
-        onOriginChanged: (Place origin) {
-          add(
-            ConfirmPoint(origin, true),
-          );
-        },
-        onMapPick: (bool isOrigin) {
-          add(
-            OnMapPick(isOrigin ? MapPick.origin : MapPick.destination),
-          );
-        },
-      ),
-      fullscreenDialog: true,
-    );
-    final Place itemSelected = await Navigator.push(context, route);
+
+    final Place itemSelected = await Get.to(
+        OriginAndDestinationPage(
+          origin: this.state.origin,
+          destination: this.state.destination,
+          hasOriginFocus: hasOriginFocus,
+          history: history,
+          onOriginChanged: (Place origin) {
+            add(
+              ConfirmPoint(origin, true),
+            );
+          },
+          onMapPick: (bool isOrigin) {
+            add(
+              OnMapPick(isOrigin ? MapPick.origin : MapPick.destination),
+            );
+          },
+        ),
+        fullscreenDialog: true);
+
     if (itemSelected != null) {
       add(ConfirmPoint(itemSelected, false));
     }
@@ -152,7 +154,17 @@ class HomeBloc extends Bloc<HomeEvents, HomeState> {
     } else if (event is FinishReverseGeocodeTask) {
       final task = this.state.reverseGeocodeTask.copyWith(place: event.place);
       yield this.state.copyWith(reverseGeocodeTask: task);
+    } else if (event is Reset) {
+      yield this.state.reset();
     }
+  }
+
+  void _onOriginTap() {
+    this.whereYouGo(hasOriginFocus: true);
+  }
+
+  void _onDestinationTap() {
+    this.whereYouGo();
   }
 
   Stream<HomeState> _mapConfirmPoint(ConfirmPoint event) async* {
@@ -174,7 +186,9 @@ class HomeBloc extends Bloc<HomeEvents, HomeState> {
       id: 'origin',
       position: origin.position,
       bytes: bytes,
+      onTap: this._onOriginTap,
     );
+
     markers[originMarker.markerId] = originMarker;
 
     MapPick mapPick;
@@ -202,6 +216,7 @@ class HomeBloc extends Bloc<HomeEvents, HomeState> {
           id: 'destination',
           position: destination.position,
           bytes: bytes,
+          onTap: this._onDestinationTap,
         );
 
         markers[destinationMarker.markerId] = destinationMarker;
@@ -222,7 +237,7 @@ class HomeBloc extends Bloc<HomeEvents, HomeState> {
     }
 
     if (origin != null && destination == null) {
-      this.whereYouGo(event.context);
+      this.whereYouGo();
     }
   }
 
