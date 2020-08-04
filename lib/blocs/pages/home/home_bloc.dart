@@ -15,6 +15,7 @@ import 'package:google_maps/models/reverse_geocode_task.dart';
 import 'package:google_maps/pages/origin_and_destination_page.dart';
 import 'package:google_maps/utils/extras.dart';
 import 'package:google_maps/utils/map_style.dart';
+import 'package:google_maps/utils/socket_client.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location_permissions/location_permissions.dart';
 import 'bloc.dart';
@@ -48,6 +49,7 @@ class HomeBloc extends Bloc<HomeEvents, HomeState> {
   Future<void> close() async {
     _subscription?.cancel();
     _subscriptionGpsStatus?.cancel();
+    SocketClient.instance.disconnect();
     super.close();
   }
 
@@ -55,10 +57,12 @@ class HomeBloc extends Bloc<HomeEvents, HomeState> {
       BlocProvider.of<HomeBloc>(context);
 
   _init() async {
+    SocketClient.instance.connect();
     _subscription = _geolocator.getPositionStream(_locationOptions).listen(
       (Position position) async {
         if (position != null) {
           final newPosition = LatLng(position.latitude, position.longitude);
+          SocketClient.instance.sendLocation(newPosition);
           add(
             OnMyLocationUpdate(
               newPosition,
