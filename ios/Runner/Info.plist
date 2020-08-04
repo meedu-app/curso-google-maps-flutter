@@ -25,7 +25,9 @@
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Necesitamos el acceso a tu ubicación para brindarte nuestros servicios</string>
 	<key>UIBackgroundModes</key>
-	<array/>
+	<array>
+		<string>location</string>
+	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
