@@ -12,6 +12,7 @@ import 'package:google_maps/blocs/pages/home/bloc.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps/models/place.dart';
 import 'package:google_maps/models/reverse_geocode_task.dart';
+import 'package:google_maps/native/background_location.dart';
 import 'package:google_maps/pages/origin_and_destination_page.dart';
 import 'package:google_maps/utils/extras.dart';
 import 'package:google_maps/utils/map_style.dart';
@@ -23,18 +24,12 @@ import 'home_events.dart';
 import 'home_state.dart';
 
 class HomeBloc extends Bloc<HomeEvents, HomeState> {
-  Geolocator _geolocator = Geolocator();
   final LocationPermissions _locationPermissions = LocationPermissions();
   Completer<GoogleMapController> _completer = Completer();
 
-  final LocationOptions _locationOptions = LocationOptions(
-    accuracy: LocationAccuracy.high,
-    distanceFilter: 10,
-  );
-
   ReverseGeocodeAPI _reverseGeocodeAPI = ReverseGeocodeAPI.instance;
 
-  StreamSubscription<Position> _subscription;
+  StreamSubscription _subscription;
   StreamSubscription<ServiceStatus> _subscriptionGpsStatus;
 
   Future<GoogleMapController> get _mapController async {
@@ -47,6 +42,7 @@ class HomeBloc extends Bloc<HomeEvents, HomeState> {
 
   @override
   Future<void> close() async {
+    await BackgroundLocation.instance.stop();
     _subscription?.cancel();
     _subscriptionGpsStatus?.cancel();
     SocketClient.instance.disconnect();
@@ -58,27 +54,23 @@ class HomeBloc extends Bloc<HomeEvents, HomeState> {
 
   _init() async {
     SocketClient.instance.connect();
-    _subscription = _geolocator.getPositionStream(_locationOptions).listen(
-      (Position position) async {
-        if (position != null) {
-          final newPosition = LatLng(position.latitude, position.longitude);
-          SocketClient.instance.sendLocation(newPosition);
-          add(
-            OnMyLocationUpdate(
-              newPosition,
-            ),
-          );
-        }
+    BackgroundLocation.instance.start();
+
+    _subscription = BackgroundLocation.instance.stream.listen(
+      (LatLng position) {
+        SocketClient.instance.sendLocation(position);
+        add(OnMyLocationUpdate(position));
       },
     );
 
     if (Platform.isAndroid) {
-      _subscriptionGpsStatus =
-          _locationPermissions.serviceStatus.listen((status) {
-        add(
-          OnGpsEnabled(status == ServiceStatus.enabled),
-        );
-      });
+      _subscriptionGpsStatus = _locationPermissions.serviceStatus.listen(
+        (status) {
+          add(
+            OnGpsEnabled(status == ServiceStatus.enabled),
+          );
+        },
+      );
     }
   }
 
