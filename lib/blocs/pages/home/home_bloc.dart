@@ -36,7 +36,7 @@ class HomeBloc extends Bloc<HomeEvents, HomeState> {
     return await _completer.future;
   }
 
-  HomeBloc() {
+  HomeBloc() : super(HomeState.initialState) {
     this._init();
   }
 
@@ -131,9 +131,6 @@ class HomeBloc extends Bloc<HomeEvents, HomeState> {
     controller.setMapStyle(jsonEncode(mapStyle));
     _completer.complete(controller);
   }
-
-  @override
-  HomeState get initialState => HomeState.initialState;
 
   @override
   Stream<HomeState> mapEventToState(HomeEvents event) async* {
